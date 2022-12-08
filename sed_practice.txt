@@ -1,0 +1,115 @@
+Sed Practice:
+Training from learnbyexample.github.io/learn_gnused/
+^Thank you to Sundeep Agarwal for this training
+
+Chapter 4, Lesson c:
+
+$ sed -n '4,$ {/are/ s/are/are not/gp; /is/ s/is/is not/gp}' addr.txt
+Today is not sunny
+You are not funny
+
+
+Chapter 4, Lession d:
+
+$ seq 15 | sed -n 'l;n;p;n;n;p;n;'
+1$
+2
+4
+6$
+7
+9
+11$
+12
+14
+
+*Using the l at the beginning prints the pattern space (guess whatever number occupies it)
+So to read this:
+	It starts out as 1 is in the pattern space (signified by $1 because l command)
+	Then n calls for next like which is 2 and that is printed.
+	Since 2 is still being 'worked on', two n's mean 3 and 4,
+	And 4 is printed.
+	It ends with next like which is 5.
+	SO now 6 is tossed in pattern space ($6)
+	and next line is printed (n;p) which is 7
+	7 is still being 'worked on' and it goes 2 n's and prints 9 (8,9 and print)
+	next number is 10 (9 is 'worked on' and next line is 10')
+	So 11 is now in the pattern space ($11)
+	and next line is 12 and that is printed (n;p)
+	and so on...
+	
+Chapter 4, Lesson f:
+Answer: seq 11 | sed 'N;$!N; s/\n/-/g'
+1-2-3
+4-5-6
+7-8-9
+10-11
+
+From the "Gotcha and Tricks" section:
+n and N commands will not execute further commands if there's no more input lines to fetch.
+
+$ # last line matched the filtering condition
+$ # but substitution didn't work for last line as there's no more input
+$ printf 'red\nblue\ncredible\n' | sed '/red/{N; s/e.*e/2/}'
+r2
+credible
+
+$ # $!N will avoid executing N command for last line of input
+$ printf 'red\nblue\ncredible\n' | sed '/red/{$!N; s/e.*e/2/}'
+r2
+cr2
+
+If you read the original command: seq 11 | sed 'N; N; s/\n/-/g'
+It is saying append the next line, then append the next line.
+After that, substitute the newline characters with a dash.
+HOWEVER, since in the original command there were only 2 remaining numbers therefore
+the command did not further execute since there were no more input lines (it appended NOTHING after the 11)
+You add the condition $!N, if this is not the last line (`$!`), append the next line to the pattern spce
+
+
+Chapter 4, Lesson g: 
+$ sed -n '/are/,+1p' addr.txt
+How are you
+This game is good
+You are funny
+
+
+I originally did, sed -n '/are/{p;n;p}' addr.txt, which seems to work.
+It finds line with /are/, prints the line, goes to next and prints that.
+The posted solution is better where it does the traditional add next line
+
+
+sed y command: $ echo 'a-b-c-d' | sed 'y/a-d/1*4/'
+y takes the SOURCE and changes Characters to destination
+so in the above example, y will replace a with 1, - with *, and d with 4 so result will be a*b*c*d
+This was part of Session 5 with changing the delimiter, so they used echo 'a/b/c/d' | sed 'y,a/d,1-4,' to get 1-b-c-4
+
+
+Chapter 5 Learning
+$ echo 'fd fed fod fe:d feeeeder' | sed -E 's/f(e+|o+|:+)d/X/g'
+fd X X fe:d Xer
+
+$ echo 'fd fed fod fe:d feeeeder' | sed -E 's/f(e|o|:)+d/X/g'
+fd X X X Xer
+
+So after a long time of trying to figure out the difference I think I got it:
+With the first example, it matches f at beginning with one or more 'e's, o's, or :'s followed by a d.
+BUT it has to have one of these. If it has BOTH (e AND :), it wont substitute
+The second example will do the same thing BUT its picking one or more of each one outside the box.
+The second group you can mix and match all of the letters, like foe:d, feeeooo::ooo:d,
+The first one you cant do feo::d, so it has something to do with OR, and the fact that the
++ outside the parenthesis picks any item in it and it'll work. The + inside the parenthesis limits
+it to only in the middle.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
