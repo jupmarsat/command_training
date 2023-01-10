@@ -1,0 +1,11 @@
+index=<index> sourcetype=<sourcetype> <insert search> 
+| rex "computerName\":\"(?<Host>.+?)\"" 
+| rex "user:(?<Employee>.+?)"
+| dedup Employee
+| stats count by Employee
+
+Use the splunkonbigdata.com/usage-of-splunk-commands-rex/
+
+Sample log: The above for the Employee didn’t have quotes in the log, but computer name had quotes so the quotes needed to be escaped to be literal quotes for the query in first example
+
+So rex followed by " then what you DON’T WANT followed by what you want in (?<FIELD NAME>what you don’t want)extra post characters
